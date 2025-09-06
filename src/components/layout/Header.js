@@ -66,7 +66,7 @@ const Header = () => {
           <div className="flex items-center space-x-2">
             <Link href="/profile">
               <Avatar
-                src="/api/placeholder/32/32"
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face"
                 alt="User"
                 size="medium"
                 fallback="U"
@@ -126,7 +126,7 @@ const Header = () => {
               </Button>
               <Link href="/profile" className="flex flex-col items-center space-y-1">
                 <Avatar
-                  src="/api/placeholder/24/24"
+                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=24&h=24&fit=crop&crop=face"
                   alt="User"
                   size="small"
                   fallback="U"

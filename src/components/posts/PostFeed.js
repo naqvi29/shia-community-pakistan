@@ -8,12 +8,12 @@ const PostFeed = ({ posts = [] }) => {
       author: {
         name: 'Ali Hassan',
         username: 'alihassan',
-        avatar: '/api/placeholder/40/40',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
         verified: true,
         online: true
       },
       content: 'Alhamdulillahi Rabbil Alameen! May Allah bless our community with unity and peace. Today marks another blessed day in our journey of faith. 🤲',
-      image: '/api/placeholder/600/400',
+      image: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=600&h=400&fit=crop',
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
       likes: 24,
       comments: 8,
@@ -25,7 +25,7 @@ const PostFeed = ({ posts = [] }) => {
       author: {
         name: 'Fatima Zahra',
         username: 'fatimazahra',
-        avatar: '/api/placeholder/40/40',
+        avatar: 'https://images.unsplash.com/photo-1494790108755-2616c0763d4e?w=40&h=40&fit=crop&crop=face',
         verified: false,
         online: true
       },
@@ -41,12 +41,12 @@ const PostFeed = ({ posts = [] }) => {
       author: {
         name: 'Muhammad Raza',
         username: 'mraza',
-        avatar: '/api/placeholder/40/40',
+        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face',
         verified: false,
         online: false
       },
       content: 'SubhanAllah! Just finished reading Dua Kumayl. The depth and beauty of Imam Ali\'s (AS) words never cease to amaze me. May Allah grant us the wisdom to understand and implement these teachings in our daily lives.',
-      image: '/api/placeholder/600/300',
+      image: 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?w=600&h=300&fit=crop',
       timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
       likes: 42,
       comments: 12,
@@ -58,7 +58,7 @@ const PostFeed = ({ posts = [] }) => {
       author: {
         name: 'Zainab Hussain',
         username: 'zainabhussain',
-        avatar: '/api/placeholder/40/40',
+        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face',
         verified: true,
         online: true
       },
@@ -74,7 +74,7 @@ const PostFeed = ({ posts = [] }) => {
       author: {
         name: 'Ahmed Kazmi',
         username: 'ahmedkazmi',
-        avatar: '/api/placeholder/40/40',
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
         verified: false,
         online: false
       },

@@ -155,7 +155,7 @@ const Post = ({
               <div className="space-y-3">
                 <div className="flex space-x-3">
                   <Avatar
-                    src="/api/placeholder/32/32"
+                    src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=32&h=32&fit=crop&crop=face"
                     alt="Commenter"
                     size="small"
                     fallback="C"
@@ -185,7 +185,7 @@ const Post = ({
               {/* Add Comment */}
               <div className="mt-4 flex space-x-3">
                 <Avatar
-                  src="/api/placeholder/32/32"
+                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face"
                   alt="You"
                   size="small"
                   fallback="U"
