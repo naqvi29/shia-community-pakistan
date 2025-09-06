@@ -4,29 +4,78 @@ const supabase = createClient();
 
 export const postsService = {
   async getAll(limit = 20, offset = 0) {
-    const { data, error } = await supabase
-      .from('posts')
-      .select(`
-        *,
-        author:users!posts_author_id_fkey (
-          id,
-          first_name,
-          last_name,
-          username,
-          avatar_url,
-          verified,
-          city
-        ),
-        likes_count:post_likes(count),
-        comments_count:post_comments(count),
-        user_liked:post_likes!inner(user_id),
-        user_bookmarked:bookmarks!inner(user_id)
-      `)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    try {
+      // First, try the complex query with user relationships
+      let { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          author:users (
+            id,
+            first_name,
+            last_name,
+            username,
+            avatar_url,
+            verified,
+            city
+          )
+        `)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
-    if (error) throw error;
-    return data;
+      // If complex query fails, try simple query
+      if (error) {
+        console.log('Complex query failed, trying simple query:', error.message);
+        
+        const { data: simplePosts, error: simpleError } = await supabase
+          .from('posts')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .range(offset, offset + limit - 1);
+          
+        if (simpleError) {
+          console.error('Simple query also failed:', simpleError);
+          throw simpleError;
+        }
+        
+        // Manually fetch user data for each post
+        if (simplePosts && simplePosts.length > 0) {
+          const postsWithAuthors = await Promise.all(
+            simplePosts.map(async (post) => {
+              const { data: author } = await supabase
+                .from('users')
+                .select('id, first_name, last_name, username, avatar_url, verified, city')
+                .eq('id', post.author_id)
+                .single();
+              
+              return {
+                ...post,
+                author: author || {
+                  id: post.author_id,
+                  first_name: 'Unknown',
+                  last_name: 'User',
+                  username: 'unknown',
+                  avatar_url: null,
+                  verified: false,
+                  city: null
+                }
+              };
+            })
+          );
+          
+          console.log('Posts with authors loaded:', postsWithAuthors);
+          return postsWithAuthors;
+        }
+        
+        return [];
+      }
+
+      console.log('Posts loaded from database:', data);
+      return data || [];
+    } catch (error) {
+      console.error('Error in getAll posts:', error);
+      throw error;
+    }
   },
 
   async getById(postId) {

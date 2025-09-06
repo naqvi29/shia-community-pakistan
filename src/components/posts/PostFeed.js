@@ -17,8 +17,17 @@ const PostFeed = ({ posts = [], refreshTrigger = 0 }) => {
     setError('');
     
     try {
+      console.log('Loading posts from database...');
       const dbPosts = await postsService.getAll(20, 0);
-      setFeedPosts(dbPosts || []);
+      console.log('Database posts received:', dbPosts);
+      
+      if (dbPosts && dbPosts.length > 0) {
+        setFeedPosts(dbPosts);
+        console.log('Posts set to state:', dbPosts.length);
+      } else {
+        console.log('No posts found in database, using sample data');
+        setFeedPosts(samplePosts);
+      }
     } catch (error) {
       console.error('Error loading posts:', error);
       setError('Failed to load posts');

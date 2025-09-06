@@ -43,7 +43,9 @@ const CreatePost = ({ onPostCreated }) => {
         image_url: selectedImage // This will be base64 data URL if image is selected
       };
       
+      console.log('Creating post with data:', postData);
       const newPost = await postsService.create(postData);
+      console.log('Post created successfully:', newPost);
       
       // Reset form
       setContent('');
