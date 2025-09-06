@@ -1,7 +1,44 @@
+import { useState, useEffect } from 'react';
+import { postsService } from '@/lib/database';
 import Post from './Post';
 
-const PostFeed = ({ posts = [] }) => {
-  // Sample data for demonstration
+const PostFeed = ({ posts = [], refreshTrigger = 0 }) => {
+  const [feedPosts, setFeedPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Load posts from database
+  useEffect(() => {
+    loadPosts();
+  }, [refreshTrigger]);
+
+  const loadPosts = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      console.log('Loading posts from database...');
+      const dbPosts = await postsService.getAll(20, 0);
+      console.log('Database posts received:', dbPosts);
+      
+      if (dbPosts && dbPosts.length > 0) {
+        setFeedPosts(dbPosts);
+        console.log('Posts set to state:', dbPosts.length);
+      } else {
+        console.log('No posts found in database, using sample data');
+        setFeedPosts(samplePosts);
+      }
+    } catch (error) {
+      console.error('Error loading posts:', error);
+      setError('Failed to load posts');
+      // Fallback to sample data if database fails
+      setFeedPosts(samplePosts);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Sample data for fallback/development
   const samplePosts = [
     {
       id: 1,
@@ -87,7 +124,49 @@ const PostFeed = ({ posts = [] }) => {
     }
   ];
 
-  const postsToDisplay = posts.length > 0 ? posts : samplePosts;
+  // Use passed posts if available, otherwise use loaded posts
+  const postsToDisplay = posts.length > 0 ? posts : feedPosts;
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="bg-card border border-border rounded-lg p-6 animate-pulse">
+            <div className="flex space-x-4">
+              <div className="w-10 h-10 bg-muted rounded-full"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-muted rounded w-1/4"></div>
+                <div className="h-4 bg-muted rounded w-3/4"></div>
+                <div className="h-4 bg-muted rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
+          <span className="text-accent text-2xl">⚠️</span>
+        </div>
+        <h3 className="text-lg font-semibold text-foreground mb-2">
+          Failed to load posts
+        </h3>
+        <p className="text-muted-foreground mb-4">
+          {error}
+        </p>
+        <button 
+          onClick={loadPosts}
+          className="text-primary hover:text-primary-dark font-medium"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
 
   if (postsToDisplay.length === 0) {
     return (
@@ -108,7 +187,19 @@ const PostFeed = ({ posts = [] }) => {
   return (
     <div className="space-y-4">
       {postsToDisplay.map((post) => (
-        <Post key={post.id} {...post} />
+        <Post 
+          key={post.id} 
+          {...post}
+          author={{
+            name: `${post.author?.first_name || ''} ${post.author?.last_name || ''}`.trim(),
+            username: post.author?.username || 'unknown',
+            avatar: post.author?.avatar_url || '',
+            verified: post.author?.verified || false,
+            online: true // TODO: Implement online status
+          }}
+          image={post.image_url}
+          timestamp={post.created_at}
+        />
       ))}
     </div>
   );

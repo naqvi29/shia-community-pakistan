@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 import Avatar from '../ui/Avatar';
 import Button from '../ui/Button';
 import Icon from '../ui/Icon';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, profile, signOut, loading } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -58,22 +60,42 @@ const Header = () => {
 
         {/* User Menu - Desktop */}
         <div className="hidden md:flex items-center space-x-4 ml-4">
-          <Button variant="primary" size="small">
-            <Icon name="plus" size={16} className="mr-2" />
-            Post
-          </Button>
-          
-          <div className="flex items-center space-x-2">
-            <Link href="/profile">
-              <Avatar
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face"
-                alt="User"
-                size="medium"
-                fallback="U"
-                online={true}
-              />
-            </Link>
-          </div>
+          {user ? (
+            <>
+              <Button variant="primary" size="small">
+                <Icon name="plus" size={16} className="mr-2" />
+                Post
+              </Button>
+              
+              <div className="flex items-center space-x-2">
+                <Link href="/profile">
+                  <Avatar
+                    src={profile?.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face"}
+                    alt={profile?.first_name || "User"}
+                    size="medium"
+                    fallback={profile?.first_name?.charAt(0) || "U"}
+                    online={true}
+                  />
+                </Link>
+                <Button variant="ghost" size="icon" onClick={() => signOut()}>
+                  <Icon name="logout" size={16} />
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Link href="/login">
+                <Button variant="ghost" size="small">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button variant="primary" size="small">
+                  Sign Up
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -109,30 +131,47 @@ const Header = () => {
 
             {/* Mobile Navigation */}
             <div className="flex justify-around border-t border-border pt-4">
-              <Link href="/" className="flex flex-col items-center space-y-1">
-                <Icon name="home" size={24} />
-                <span className="text-xs">Home</span>
-              </Link>
-              <Link href="/notifications" className="flex flex-col items-center space-y-1">
-                <div className="relative">
-                  <Icon name="bell" size={24} />
-                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full"></span>
+              {user ? (
+                <>
+                  <Link href="/" className="flex flex-col items-center space-y-1">
+                    <Icon name="home" size={24} />
+                    <span className="text-xs">Home</span>
+                  </Link>
+                  <Link href="/notifications" className="flex flex-col items-center space-y-1">
+                    <div className="relative">
+                      <Icon name="bell" size={24} />
+                      <span className="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full"></span>
+                    </div>
+                    <span className="text-xs">Notifications</span>
+                  </Link>
+                  <Button variant="primary" size="small" className="flex flex-col items-center space-y-1">
+                    <Icon name="plus" size={20} />
+                    <span className="text-xs">Post</span>
+                  </Button>
+                  <Link href="/profile" className="flex flex-col items-center space-y-1">
+                    <Avatar
+                      src={profile?.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=24&h=24&fit=crop&crop=face"}
+                      alt={profile?.first_name || "User"}
+                      size="small"
+                      fallback={profile?.first_name?.charAt(0) || "U"}
+                    />
+                    <span className="text-xs">Profile</span>
+                  </Link>
+                </>
+              ) : (
+                <div className="flex w-full justify-center space-x-4">
+                  <Link href="/login">
+                    <Button variant="ghost" size="small">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button variant="primary" size="small">
+                      Sign Up
+                    </Button>
+                  </Link>
                 </div>
-                <span className="text-xs">Notifications</span>
-              </Link>
-              <Button variant="primary" size="small" className="flex flex-col items-center space-y-1">
-                <Icon name="plus" size={20} />
-                <span className="text-xs">Post</span>
-              </Button>
-              <Link href="/profile" className="flex flex-col items-center space-y-1">
-                <Avatar
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=24&h=24&fit=crop&crop=face"
-                  alt="User"
-                  size="small"
-                  fallback="U"
-                />
-                <span className="text-xs">Profile</span>
-              </Link>
+              )}
             </div>
           </div>
         </div>

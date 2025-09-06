@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Icon from '@/components/ui/Icon';
@@ -22,6 +24,9 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [generalError, setGeneralError] = useState('');
+  const { signUp } = useAuth();
+  const router = useRouter();
 
   const pakistanCities = [
     'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 
@@ -71,12 +76,30 @@ export default function RegisterPage() {
     if (!validateForm()) return;
     
     setIsLoading(true);
+    setGeneralError('');
     
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Registration attempt:', formData);
-      setIsLoading(false);
-    }, 1000);
+    try {
+      const userData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        username: formData.username,
+        city: formData.city
+      };
+      
+      const { data, error } = await signUp(formData.email, formData.password, userData);
+      
+      if (error) {
+        setGeneralError(error.message);
+      } else {
+        // Registration successful, redirect to login or home
+        router.push('/login?message=Please check your email to verify your account');
+      }
+    } catch (error) {
+      setGeneralError('An unexpected error occurred. Please try again.');
+      console.error('Registration error:', error);
+    }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -101,6 +124,11 @@ export default function RegisterPage() {
         <Card>
           <Card.Content className="p-6">
             <form className="space-y-4" onSubmit={handleSubmit}>
+              {generalError && (
+                <div className="bg-accent/10 border border-accent/20 text-accent px-4 py-3 rounded-lg text-sm">
+                  {generalError}
+                </div>
+              )}
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>

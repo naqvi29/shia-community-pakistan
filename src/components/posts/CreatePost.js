@@ -1,15 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { postsService } from '@/lib/database';
 import Button from '../ui/Button';
 import Textarea from '../ui/Textarea';
 import Avatar from '../ui/Avatar';
 import Icon from '../ui/Icon';
 import Card from '../ui/Card';
 
-const CreatePost = () => {
+const CreatePost = ({ onPostCreated }) => {
   const [content, setContent] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  
+  const { user, profile } = useAuth();
 
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
@@ -22,23 +28,62 @@ const CreatePost = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Post submitted:', { content, image: selectedImage });
-    // Reset form
-    setContent('');
-    setSelectedImage(null);
+    
+    if (!user || !content.trim()) return;
+    
+    setIsSubmitting(true);
+    setError('');
+    
+    try {
+      const postData = {
+        author_id: user.id,
+        content: content.trim(),
+        image_url: selectedImage // This will be base64 data URL if image is selected
+      };
+      
+      console.log('Creating post with data:', postData);
+      const newPost = await postsService.create(postData);
+      console.log('Post created successfully:', newPost);
+      
+      // Reset form
+      setContent('');
+      setSelectedImage(null);
+      
+      // Notify parent component that a new post was created
+      if (onPostCreated) {
+        onPostCreated(newPost);
+      }
+      
+    } catch (error) {
+      console.error('Error creating post:', error);
+      setError('Failed to create post. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Don't render if user is not authenticated
+  if (!user) {
+    return null;
+  }
 
   return (
     <Card className="mb-6">
       <Card.Content className="pt-6">
+        {error && (
+          <div className="mb-4 bg-accent/10 border border-accent/20 text-accent px-4 py-3 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+        
         <div className="flex space-x-4">
           <Avatar
-            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
-            alt="Your profile"
+            src={profile?.avatar_url}
+            alt={`${profile?.first_name} ${profile?.last_name}` || "Your profile"}
             size="medium"
-            fallback="U"
+            fallback={profile?.first_name?.charAt(0) || "U"}
           />
           
           <div className="flex-1">
@@ -96,11 +141,18 @@ const CreatePost = () => {
                   
                   <Button
                     type="submit"
-                    disabled={!content.trim() || content.length > 280}
+                    disabled={!content.trim() || content.length > 280 || isSubmitting}
                     size="small"
                     className="px-6"
                   >
-                    Post
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Posting...
+                      </>
+                    ) : (
+                      'Post'
+                    )}
                   </Button>
                 </div>
               </div>

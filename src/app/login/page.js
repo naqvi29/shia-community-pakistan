@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Icon from '@/components/ui/Icon';
@@ -14,6 +16,9 @@ export default function LoginPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { signIn } = useAuth();
+  const router = useRouter();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,12 +31,23 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Login attempt:', formData);
-      setIsLoading(false);
-    }, 1000);
+    try {
+      const { data, error } = await signIn(formData.email, formData.password);
+      
+      if (error) {
+        setError(error.message);
+      } else {
+        // Redirect to home page after successful login
+        router.push('/');
+      }
+    } catch (error) {
+      setError('An unexpected error occurred. Please try again.');
+      console.error('Login error:', error);
+    }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -56,6 +72,11 @@ export default function LoginPage() {
         <Card>
           <Card.Content className="p-6">
             <form className="space-y-6" onSubmit={handleSubmit}>
+              {error && (
+                <div className="bg-accent/10 border border-accent/20 text-accent px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                   Email Address
