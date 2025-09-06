@@ -22,14 +22,26 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Session error:', error);
+          setLoading(false);
+          return;
+        }
+
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error getting initial session:', error);
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     getInitialSession();
@@ -53,6 +65,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const fetchProfile = async (userId) => {
+    if (!userId) return null;
+    
     try {
       const { data, error } = await supabase
         .from('users')
@@ -62,12 +76,14 @@ export const AuthProvider = ({ children }) => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching profile:', error);
-        return;
+        return null;
       }
 
       setProfile(data);
+      return data;
     } catch (error) {
       console.error('Error in fetchProfile:', error);
+      return null;
     }
   };
 

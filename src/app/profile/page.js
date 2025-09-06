@@ -35,9 +35,15 @@ export default function ProfilePage() {
     website: ''
   });
 
-  // Load profile data on component mount
+  // Handle initial profile loading when user is available
   useEffect(() => {
-    if (user && profile) {
+    if (user && !profile) {
+      // User is available but profile isn't loaded yet, fetch it
+      fetchProfile(user.id).then(() => {
+        setLoading(false);
+      });
+    } else if (user && profile) {
+      // Both user and profile are available, initialize data
       setEditData({
         first_name: profile.first_name || '',
         last_name: profile.last_name || '',
@@ -47,8 +53,27 @@ export default function ProfilePage() {
         website: profile.website || ''
       });
       loadUserData();
+    } else if (!user) {
+      // No user, keep loading
+      setLoading(true);
     }
-  }, [user, profile]);
+  }, [user, profile, fetchProfile]);
+
+  // Separate effect to ensure profile is loaded after a delay if needed
+  useEffect(() => {
+    if (user && !profile && !loading) {
+      const timer = setTimeout(() => {
+        if (user && !profile) {
+          setLoading(true);
+          fetchProfile(user.id).then(() => {
+            setLoading(false);
+          });
+        }
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [user, profile, loading, fetchProfile]);
 
   const loadUserData = async () => {
     if (!user?.id) return;
@@ -197,25 +222,48 @@ export default function ProfilePage() {
     { id: 'likes', label: 'Likes', count: userStats.likes }
   ];
 
-  if (loading) {
+  // Handle loading and authentication states
+  if (loading || !user) {
     return (
       <Layout>
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="flex flex-col items-center space-y-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <p className="text-muted-foreground">Loading profile...</p>
+            </div>
           </div>
         </div>
       </Layout>
     );
   }
 
-  if (!user || !profile) {
+  if (!profile) {
     return (
       <Layout>
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
-            <h2 className="text-xl font-semibold text-foreground mb-2">Profile not found</h2>
-            <p className="text-muted-foreground">Please log in to view your profile.</p>
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                <Icon name="user" size={24} className="text-muted-foreground" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Setting up your profile</h2>
+                <p className="text-muted-foreground">Please wait while we load your profile data.</p>
+                <Button 
+                  variant="primary" 
+                  className="mt-4"
+                  onClick={() => {
+                    if (user?.id) {
+                      setLoading(true);
+                      fetchProfile(user.id);
+                    }
+                  }}
+                >
+                  Retry Loading
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </Layout>
