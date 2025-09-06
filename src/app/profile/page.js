@@ -281,8 +281,8 @@ export default function ProfilePage() {
         )}
 
         {/* Profile Header */}
-        <Card className="mb-6">
-          <Card.Content className="p-0">
+        <Card className="mb-6 overflow-visible">
+          <Card.Content className="p-0 relative">
             {/* Cover Photo */}
             <div className="h-48 relative overflow-hidden">
               {profile.cover_url ? (
@@ -297,36 +297,8 @@ export default function ProfilePage() {
                 </div>
               )}
               
-              {/* Profile Picture */}
-              <div className="absolute -bottom-12 left-6 z-10">
-                <div className="relative">
-                  <div className="w-24 h-24 rounded-full border-4 border-background bg-background shadow-lg">
-                    <Avatar
-                      src={profile.avatar_url}
-                      alt={`${profile.first_name} ${profile.last_name}`}
-                      className="w-full h-full"
-                      fallback={profile.first_name?.charAt(0) || 'U'}
-                    />
-                  </div>
-                  <label className="absolute bottom-0 right-0 p-2 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors cursor-pointer shadow-md z-20">
-                    {uploadingAvatar ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    ) : (
-                      <Icon name="image" size={16} />
-                    )}
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleAvatarUpload}
-                      className="hidden"
-                      disabled={uploadingAvatar}
-                    />
-                  </label>
-                </div>
-              </div>
-              
               {/* Edit Cover Button */}
-              <label className="absolute top-4 right-4 px-3 py-1 bg-black/20 text-white rounded-md hover:bg-black/30 transition-colors cursor-pointer">
+              <label className="absolute top-4 right-4 px-3 py-1 bg-black/20 text-white rounded-md hover:bg-black/30 transition-colors cursor-pointer z-10">
                 {uploadingCover ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white inline-block mr-2"></div>
@@ -346,6 +318,34 @@ export default function ProfilePage() {
                   disabled={uploadingCover}
                 />
               </label>
+            </div>
+
+            {/* Profile Picture - Outside of cover photo container */}
+            <div className="absolute -bottom-12 left-6 z-50">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full border-4 border-background bg-background shadow-xl">
+                  <Avatar
+                    src={profile.avatar_url}
+                    alt={`${profile.first_name} ${profile.last_name}`}
+                    className="w-full h-full"
+                    fallback={profile.first_name?.charAt(0) || 'U'}
+                  />
+                </div>
+                <label className="absolute bottom-0 right-0 p-2 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors cursor-pointer shadow-lg z-60">
+                  {uploadingAvatar ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    <Icon name="image" size={16} />
+                  )}
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                    disabled={uploadingAvatar}
+                  />
+                </label>
+              </div>
             </div>
 
             {/* Profile Info */}
