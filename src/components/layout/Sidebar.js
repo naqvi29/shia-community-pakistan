@@ -119,7 +119,7 @@ const Sidebar = () => {
           <Link href="/profile" className="group block">
             <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors duration-200">
               <Avatar
-                src="/api/placeholder/40/40"
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
                 alt="User Profile"
                 size="medium"
                 fallback="U"

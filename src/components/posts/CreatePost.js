@@ -35,7 +35,7 @@ const CreatePost = () => {
       <Card.Content className="pt-6">
         <div className="flex space-x-4">
           <Avatar
-            src="/api/placeholder/40/40"
+            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
             alt="Your profile"
             size="medium"
             fallback="U"

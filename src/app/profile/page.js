@@ -49,7 +49,7 @@ export default function ProfilePage() {
       author: {
         name: profileData.name,
         username: profileData.username,
-        avatar: '/api/placeholder/40/40',
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
         verified: true,
         online: true
       },
@@ -65,12 +65,12 @@ export default function ProfilePage() {
       author: {
         name: profileData.name,
         username: profileData.username,
-        avatar: '/api/placeholder/40/40',
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
         verified: true,
         online: true
       },
       content: 'Organizing a community book reading session this weekend. We\'ll be discussing "Peak of Eloquence" (Nahjul Balagha). All are welcome!',
-      image: '/api/placeholder/600/300',
+      image: 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=600&h=300&fit=crop',
       timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
       likes: 56,
       comments: 15,
@@ -98,7 +98,7 @@ export default function ProfilePage() {
               <div className="absolute -bottom-12 left-6">
                 <div className="relative">
                   <Avatar
-                    src="/api/placeholder/120/120"
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&crop=face"
                     alt={profileData.name}
                     size="xl"
                     className="w-24 h-24 border-4 border-background"
