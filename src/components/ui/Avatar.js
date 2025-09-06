@@ -28,13 +28,23 @@ const Avatar = ({
   return (
     <div className={baseClasses} {...props}>
       {src ? (
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          className="rounded-full object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+        src.startsWith('data:') ? (
+          // Handle data URLs (base64 images) with regular img tag
+          <img
+            src={src}
+            alt={alt}
+            className="rounded-full object-cover w-full h-full"
+          />
+        ) : (
+          // Handle regular URLs with Next.js Image component
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            className="rounded-full object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        )
       ) : (
         <span className={`font-medium ${textSizes[size]}`}>
           {fallback || alt.charAt(0).toUpperCase()}

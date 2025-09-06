@@ -100,14 +100,42 @@ export default function ProfilePage() {
     const file = event.target.files[0];
     if (!file || !user?.id) return;
 
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      setError('Image size must be less than 5MB');
+      return;
+    }
+
     setUploadingAvatar(true);
+    setError('');
+
     try {
-      const avatarUrl = await storageService.uploadAvatar(file, user.id);
-      await updateProfile({ avatar_url: avatarUrl });
+      // For development, convert to base64 data URL
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const avatarUrl = e.target.result;
+          await updateProfile({ avatar_url: avatarUrl });
+        } catch (error) {
+          console.error('Error updating avatar:', error);
+          setError('Failed to update avatar');
+        } finally {
+          setUploadingAvatar(false);
+        }
+      };
+      reader.onerror = () => {
+        setError('Failed to read image file');
+        setUploadingAvatar(false);
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
       console.error('Error uploading avatar:', error);
       setError('Failed to upload avatar');
-    } finally {
       setUploadingAvatar(false);
     }
   };
@@ -116,14 +144,42 @@ export default function ProfilePage() {
     const file = event.target.files[0];
     if (!file || !user?.id) return;
 
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit for cover photos
+      setError('Image size must be less than 10MB');
+      return;
+    }
+
     setUploadingCover(true);
+    setError('');
+
     try {
-      const coverUrl = await storageService.uploadCoverPhoto(file, user.id);
-      await updateProfile({ cover_url: coverUrl });
+      // For development, convert to base64 data URL
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const coverUrl = e.target.result;
+          await updateProfile({ cover_url: coverUrl });
+        } catch (error) {
+          console.error('Error updating cover photo:', error);
+          setError('Failed to update cover photo');
+        } finally {
+          setUploadingCover(false);
+        }
+      };
+      reader.onerror = () => {
+        setError('Failed to read image file');
+        setUploadingCover(false);
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
       console.error('Error uploading cover photo:', error);
       setError('Failed to upload cover photo');
-    } finally {
       setUploadingCover(false);
     }
   };
@@ -194,16 +250,17 @@ export default function ProfilePage() {
               )}
               
               {/* Profile Picture */}
-              <div className="absolute -bottom-12 left-6">
+              <div className="absolute -bottom-12 left-6 z-10">
                 <div className="relative">
-                  <Avatar
-                    src={profile.avatar_url}
-                    alt={`${profile.first_name} ${profile.last_name}`}
-                    size="xl"
-                    className="w-24 h-24 border-4 border-background"
-                    fallback={profile.first_name?.charAt(0) || 'U'}
-                  />
-                  <label className="absolute bottom-0 right-0 p-2 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors cursor-pointer">
+                  <div className="w-24 h-24 rounded-full border-4 border-background bg-background shadow-lg">
+                    <Avatar
+                      src={profile.avatar_url}
+                      alt={`${profile.first_name} ${profile.last_name}`}
+                      className="w-full h-full"
+                      fallback={profile.first_name?.charAt(0) || 'U'}
+                    />
+                  </div>
+                  <label className="absolute bottom-0 right-0 p-2 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors cursor-pointer shadow-md z-20">
                     {uploadingAvatar ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     ) : (

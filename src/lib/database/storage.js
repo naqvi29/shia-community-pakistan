@@ -4,47 +4,82 @@ const supabase = createClient();
 
 export const storageService = {
   async uploadAvatar(file, userId) {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${userId}-${Date.now()}.${fileExt}`;
-    const filePath = `avatars/${fileName}`;
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userId}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
 
-    const { data, error } = await supabase.storage
-      .from('avatars')
-      .upload(filePath, file);
+      // First, try to upload the file
+      const { data, error } = await supabase.storage
+        .from('user-uploads')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-    if (error) throw error;
+      if (error) {
+        console.error('Upload error:', error);
+        throw new Error(`Failed to upload avatar: ${error.message}`);
+      }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(filePath);
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('user-uploads')
+        .getPublicUrl(filePath);
 
-    return publicUrl;
+      return publicUrl;
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      throw error;
+    }
   },
 
   async uploadCoverPhoto(file, userId) {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `cover-${userId}-${Date.now()}.${fileExt}`;
-    const filePath = `covers/${fileName}`;
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `cover-${userId}-${Date.now()}.${fileExt}`;
+      const filePath = `covers/${fileName}`;
 
-    const { data, error } = await supabase.storage
-      .from('avatars')
-      .upload(filePath, file);
+      // Upload the file
+      const { data, error } = await supabase.storage
+        .from('user-uploads')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-    if (error) throw error;
+      if (error) {
+        console.error('Cover upload error:', error);
+        throw new Error(`Failed to upload cover photo: ${error.message}`);
+      }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(filePath);
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('user-uploads')
+        .getPublicUrl(filePath);
 
-    return publicUrl;
+      return publicUrl;
+    } catch (error) {
+      console.error('Cover photo upload error:', error);
+      throw error;
+    }
   },
 
   async deleteFile(filePath) {
-    const { error } = await supabase.storage
-      .from('avatars')
-      .remove([filePath]);
+    try {
+      const { error } = await supabase.storage
+        .from('user-uploads')
+        .remove([filePath]);
 
-    if (error) throw error;
-    return true;
+      if (error) {
+        console.error('Delete error:', error);
+        throw new Error(`Failed to delete file: ${error.message}`);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('File deletion error:', error);
+      throw error;
+    }
   }
 };
