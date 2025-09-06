@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useAuth } from '@/contexts/AuthContext';
+import { postsService } from '@/lib/database';
 import Avatar from '../ui/Avatar';
 import Button from '../ui/Button';
 import Icon from '../ui/Icon';
@@ -21,13 +23,40 @@ const Post = ({
   const [liked, setLiked] = useState(isLiked);
   const [bookmarked, setBookmarked] = useState(isBookmarked);
   const [showComments, setShowComments] = useState(false);
+  const [likeCount, setLikeCount] = useState(likes);
+  const [processing, setProcessing] = useState(false);
+  
+  const { user } = useAuth();
 
-  const handleLike = () => {
-    setLiked(!liked);
+  const handleLike = async () => {
+    if (!user || processing) return;
+    
+    setProcessing(true);
+    
+    try {
+      const result = await postsService.toggleLike(id);
+      setLiked(result.liked);
+      setLikeCount(prev => result.liked ? prev + 1 : prev - 1);
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    } finally {
+      setProcessing(false);
+    }
   };
 
-  const handleBookmark = () => {
-    setBookmarked(!bookmarked);
+  const handleBookmark = async () => {
+    if (!user || processing) return;
+    
+    setProcessing(true);
+    
+    try {
+      const result = await postsService.toggleBookmark(id);
+      setBookmarked(result.bookmarked);
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const formatTimeAgo = (timestamp) => {
@@ -113,7 +142,7 @@ const Post = ({
                   />
                 </div>
                 <span className="text-sm font-medium">
-                  {liked ? likes + 1 : likes}
+                  {likeCount}
                 </span>
               </button>
 
